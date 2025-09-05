@@ -3,31 +3,29 @@ import math
 from tkinter import messagebox
 
 def createGame():
-    global game,boardY0,boardY1,boardY2,playerTurn,player1,player2,circle1,circle2,cross1,cross2
+    global game,boardY0,boardY1,boardY2,playerTurn,player1,player2,circle1,circle2,cross1,cross2,xCount,oCount
     
-
-    boardY0 = list(["","",""])
-    boardY1 = list(["","",""])
-    boardY2 = list(["","",""])
-
-    playerTurn = 2 # Turn 1 = X Turn 2 = O
+    boardY0,boardY1,boardY2 = list(["","",""]),list(["","",""]),list(["","",""])
+    cross1,cross2,circle1,circle2=game.create_line(0,0,0,0,fill="red",width=0),game.create_line(0,0,0,0,fill="red",width=0),game.create_oval(0,0,0,0,fill="blue",width=5),game.create_oval(0,0,0,0,fill="blue",width=5)
+    
     game.create_line(200,100,200,400,width=5)
     game.create_line(300,100,300,400,width=5)
     game.create_line(100,200,400,200,width=5)
     game.create_line(100,300,400,300,width=5)
-    cross1=game.create_line(0,0,0,0,fill="red",width=0)
-    cross2=game.create_line(0,0,0,0,fill="red",width=0)
-    circle1=game.create_oval(0,0,0,0,fill="blue",width=5)
-    circle2=game.create_oval(0,0,0,0,fill="blue",width=5)
-    player1 = tk.Label(game, text = "Player One (X)", font = ("Arial",12 ), bg="Red")
-    player2=tk.Label(game,text="Player Two (O)", font = ("Arial",12 ), bg="Blue")
+
+    player1 = tk.Label(game, text = f"Player X ({xCount})", font = ("Arial",12 ), bg="Red")
+    player2=tk.Label(game,text=f"Player O ({oCount})", font = ("Arial",12 ), bg="Blue")
     player1.place(x=175,y=20,anchor='n')
     player2.place(x=300,y=20,anchor='n')
 
 def winnerDefined(winner):
+    global xCount, oCount
     tk.messagebox.showinfo(title="The winner is...", message=f"{winner} is the winning symbol")  
     game.delete("all")
+    if winner == "x": xCount +=1
+    elif winner == "o": oCount +=1
     createGame()
+    switchTurn()
     switchTurn()
 
 def checkWin():
@@ -124,16 +122,16 @@ def switchTurn(): # switches turn between players
         playerTurn=2
         player1.destroy()
         player2.destroy()
-        player1 = tk.Label(game, text = "Player One (X)", font = ("Arial",12 ), bg="Red")
-        player2=tk.Label(game,text="Player Two (O)", font = ("Arial",12 ), bg="Blue",fg="white")
+        player1 = tk.Label(game, text = f"Player X ({xCount})", font = ("Arial",12 ), bg="Red")
+        player2=tk.Label(game,text=f"Player O ({oCount})", font = ("Arial",12 ), bg="Blue",fg="white")
         player1.place(x=175,y=20,anchor='n')
         player2.place(x=300,y=20,anchor='n')
     elif playerTurn == 2:
         playerTurn=1
         player1.destroy()
         player2.destroy()
-        player1 = tk.Label(game, text = "Player One (X)", font = ("Arial",12 ), bg="Red",fg="white")
-        player2=tk.Label(game,text="Player Two (O)", font = ("Arial",12 ), bg="Blue")
+        player1 = tk.Label(game, text = f"Player X ({xCount})", font = ("Arial",12 ), bg="Red",fg="white")
+        player2=tk.Label(game,text=f"Player O ({oCount})", font = ("Arial",12 ), bg="Blue")
         player1.place(x=175,y=20,anchor='n')
         player2.place(x=300,y=20,anchor='n')
         
@@ -149,8 +147,7 @@ def displayX(x,y): #Deletes previous x and spawns a new one
     game.delete(cross1)
     game.delete(cross2)   
     cross1=game.create_line(x-25,y-25,x+25,y+25,fill="red",width=5)
-    cross2=game.create_line(x+25,y-25,x-25,y+25,fill="red",width=5)       
-     
+    cross2=game.create_line(x+25,y-25,x-25,y+25,fill="red",width=5)          
         
 def displayMouse(x,y): #Finds the square that the cursor is in
     global playerTurn
@@ -162,10 +159,7 @@ def displayMouse(x,y): #Finds the square that the cursor is in
     if tempx==0:
         tempx=x
         tempy=y
-        if playerTurn == 1:
-            displayX(tempx,tempy)
-        elif playerTurn == 2:
-            displayO(tempx,tempy)
+        change = True
     if x != tempx:
         tempx=x
         change = True
@@ -192,9 +186,11 @@ root.configure(bg="green")
 game = tk.Canvas(root, width=500,height=500,bg="green") # canvas for the game 
 game.pack()
 
+xCount,oCount,playerTurn = 0,0,2 # Turn 1 = X Turn 2 = O
+
 createGame()
 switchTurn()
 
 game.bind("<Button-1>",click) # listening for mouse click
-game.bind('<Motion>',callback) #listening for mouse movement
+game.bind('<Motion>',callback) # listening for mouse movement
 game.mainloop()
